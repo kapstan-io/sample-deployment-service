@@ -1,0 +1,40 @@
+{{- if .Values.generateCertificates }}
+{{- $root := .  -}}
+{{- range $idx, $cert := .Values.certificates }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "sample-service.fullname" $}}-{{ $cert.name }}-certificate
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  secretName: {{ include "sample-service.fullname" $}}-{{ $cert.name }}-certificate
+  secretTemplate:
+    annotations:
+      reloader.stakater.com/match: "true"
+  issuerRef:
+    name: {{ $cert.issuerName }}
+    kind: ClusterIssuer
+  {{- if eq $cert.usage "server"}}
+  dnsNames:
+  {{- range $idx, $dnsName := $cert.dnsNames }}
+  - {{ $dnsName }}
+  {{- end }}
+  usages:
+  - server auth
+  {{- else if eq $cert.usage "client" }}
+  commonName: {{$cert.name}}-client
+  usages:
+  - client auth
+  {{- end }}
+  privateKey:
+    {{- if ($cert).key_size }}
+    size: {{ $cert.key_size }}
+    {{- else }}
+    size: 4096
+    {{- end }}
+  {{- if ($cert).ttl }}
+  duration: {{ $cert.ttl }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}

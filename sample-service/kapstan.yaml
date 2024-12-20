@@ -1,0 +1,16 @@
+version: 1.0
+
+imageTag:
+  enabled: true
+
+environmentVars:
+  enabled: true
+
+resources:
+  enabled: true
+  constraints:
+    maxCpu: 16
+    maxMemory: "12GB"
+
+autoscaling:
+  enabled: true

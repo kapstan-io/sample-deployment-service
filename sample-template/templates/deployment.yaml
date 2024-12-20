@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sample-template.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- if eq .Values.reloadMode "auto" }}
+    reloader.stakater.com/auto: "true"
+    {{- else if eq .Values.reloadMode "search"}}
+    reloader.stakater.com/search: "true"
+    {{- end }}
+  labels:
+    {{- include "sample-template.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sample-template.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "sample-template.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      terminationGracePeriodSeconds: {{ default 30 .Values.terminationGracePeriodSeconds }}
+      imagePullSecrets:
+        - name:  {{ .Values.imageCredentials.secretName }}
+      serviceAccountName: {{ include "sample-template.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.env }}
+          env:
+            {{- include "environment" $ | indent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "sample-template.fullname" $ }}-confvars
+              mountPath: "/confvars"
+              readOnly: true
+              {{- if .Values.generateCertificates }}
+            - name: {{ include "sample-template.fullname" $ }}-certificates
+              mountPath: "/confvars-certs"
+              readOnly: true
+          {{- end }}
+      {{- with .Values.env }}
+      volumes:
+        {{- include "secretFileVolumes" $ | nindent 10 }}
+        {{- include "certificateVolumes" $ | nindent 10 }}
+
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

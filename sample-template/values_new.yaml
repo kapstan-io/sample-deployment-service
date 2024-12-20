@@ -1,0 +1,28 @@
+image:
+  repository: {{ .Kapstan.imageRepository }}
+  pullPolicy: Always
+  tag: {{ .Kapstan.imageTag }}
+imageCredentials:
+  create: false
+generateCertificates: false
+env: {{ .Kapstan.environmentVars }}
+autoscaling: {{ .Kapstan.scaling }}
+service:
+  type: ClusterIP
+  ports:
+    - port: 6060
+      targetPort: 6060
+      name: prometheus
+      protocol: TCP
+metrics:
+  enabled: true
+  port: prometheus
+  path: /metrics
+logs:
+  enabled: true
+  globalOutputRefs:
+    - kapstan-loki-cluster-output
+  namespace: logs-metrics
+resources: {{ .Kapstan.resources }}
+serviceAccount:
+  create: true
