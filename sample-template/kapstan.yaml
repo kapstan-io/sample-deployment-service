@@ -19,6 +19,9 @@ containers:
         - ghcr.io
         imageRepositories:
         - kapstan-io/gandalf
+        - kapstan-io/boromir
+        - kapstan-io/faramir
+        - kapstan-io/arnor        
     environmentVariables: true
     secrets: true
       
