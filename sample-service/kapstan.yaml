@@ -1,16 +1,19 @@
-version: 1.0
-
-imageTag:
-  enabled: true
-
-environmentVars:
-  enabled: true
+version: v1.0.0
 
 resources:
-  enabled: true
   constraints:
     maxCpu: 16
     maxMemory: "12GB"
 
 autoscaling:
-  enabled: true
+  constraints:
+    minPods: 1
+
+containers:
+  sample-service:
+    image:
+      constraints:
+        containerRegistries:
+        - ghcr.io
+        imageRepositories:
+        - kapstan-io/gandalf
