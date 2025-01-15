@@ -17,3 +17,5 @@ containers:
         - ghcr.io
         imageRepositories:
         - kapstan-io/gandalf
+    environmentVariables: true
+    secrets: true
