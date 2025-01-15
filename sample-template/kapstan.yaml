@@ -1,5 +1,7 @@
 version: v1.0.0
 
+template: true
+
 resources:
   constraints:
     maxCpu: 16
