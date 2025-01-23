@@ -1,0 +1,114 @@
+image:
+  repository: ghcr.io/kapstan-io/sample-service
+  pullPolicy: Always
+  tag: sample-service-1.107.800
+imageCredentials:
+  create: false
+generateCertificates: false
+env:
+  - name: SAMPLE_SERVICE_ENVIRONMENT
+    value: dev
+  - name: SAMPLE_SERVICE_LOGLEVEL
+    value: debug
+  - name: SAMPLE_SERVICE_MANAGEMENT_CLIENT_NAME
+    value: rivendell
+  - name: SAMPLE_SERVICE_MANAGEMENT_CLIENT_URL
+    value: rivendell.rivendell:5060
+  - name: SAMPLE_SERVICE_MANAGEMENT_CLIENT_TLS_ENABLED
+    value: 'false'
+    reference: management-tls
+    subtype: ca.crt
+    mountAs: filePath
+  - name: SAMPLE_SERVICE_NATS_ENABLED
+    value: 'true'
+  - name: SAMPLE_SERVICE_NATS_ADDRESS
+    value: nats://nats.nats:4222
+    reference: nats-tls
+    subtype: ca.crt
+    mountAs: filePath
+  - name: SAMPLE_SERVICE_NATS_TOKEN_FILE
+    value: /vault/secrets/nats-token
+  - name: SAMPLE_SERVICE_NATS_JETSTREAM_REPLICAS
+    value: '3'
+  - name: SAMPLE_SERVICE_NATS_SUBSCRIBER_EXPOSE_METRICS
+    value: 'true'
+  - name: SAMPLE_SERVICE_NATS_SUBSCRIBER_METRICS_PORT
+    value: '6060'
+  - name: SAMPLE_SERVICE_NATS_SUBSCRIBER_METRICS_LABELS
+    value: subject,status_code
+  - name: SAMPLE_SERVICE_NATS_MAX_RECONNECTS
+    value: '5'
+  - name: SAMPLE_SERVICE_NATS_SUBSCRIBER_MAX_PARALLEL
+    value: 5
+  - name: SAMPLE_SERVICE_AWS_ACCESS_KEY_ID_FILE
+    value: /vault/secrets/iac-aws-access-key
+  - name: SAMPLE_SERVICE_AWS_SECRET_KEY_FILE
+    value: /vault/secrets/iac-aws-secret-key
+  - name: SAMPLE_SERVICE_AWS_REGION
+    value: us-west-2
+  - name: SAMPLE_SERVICE_POSTHOG_ENABLED
+    value: true
+  - name: SAMPLE_SERVICE_POSTHOG_USER_API_KEY_FILE
+    value: /vault/secrets/posthog-user-token
+  - name: SAMPLE_SERVICE_POSTHOG_PROJECT_API_KEY_FILE
+    value: /vault/secrets/posthog-project-token
+  - name: SAMPLE_SERVICE_POSTHOG_ENVIRONMENT
+    value: development
+  - name: SAMPLE_SERVICE_POSTHOG_REFERRER
+    value: https://app-dev.kapstan.io
+  - name: SAMPLE_SERVICE_POSTHOG_PROJECT_ID
+    value: 10824
+  - name: SAMPLE_SERVICE_POSTHOG_EVENT_REPORTING_ENABLED
+    value: true
+  - name: SAMPLE_SERVICE_TEMPORAL_WORKER_ENABLED
+    value: 'true'
+  - name: SAMPLE_SERVICE_TEMPORAL_WORKER_TASK_QUEUE
+    value: 'connections'
+  - name: SAMPLE_SERVICE_TEMPORAL_CLIENT_ENABLED
+    value: 'true'
+  - name: SAMPLE_SERVICE_TEMPORAL_CLIENT_ADDRESS
+    value: temporal-frontend.temporal:7233
+  - name: SAMPLE_SERVICE_TEMPORAL_CLIENT_TLS_ENABLED
+    value: 'false'
+  - name: SAMPLE_SERVICE_TEMPORAL_CLIENT_METRICS_ENABLED
+    value: 'true'
+  - name: SAMPLE_SERVICE_TEMPORAL_CLIENT_LISTEN_ADDRESS
+    value: '0.0.0.0:6060'
+  - name: SAMPLE_SERVICE_TEMPORAL_CLIENT_TIMER_TYPE
+    value: 'histogram'
+  - name: MW_AGENT_ENABLED
+    value: true
+  - name: MW_AGENT_GRPC_ENABLED
+    value: true
+  - name: MW_AGENT_TOKEN
+    value: /vault/secrets/mw-agent-token
+  - name: MW_AGENT_SERVICE
+    value: mw-kube-agent-svc.middleware.svc.cluster.local
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+service:
+  type: ClusterIP
+  ports:
+    - port: 6060
+      targetPort: 6060
+      name: prometheus
+      protocol: TCP
+metrics:
+  enabled: true
+  port: prometheus
+  path: /metrics
+logs:
+  enabled: true
+  globalOutputRefs:
+    - kapstan-loki-cluster-output
+  namespace: logs-metrics
+resources:
+  limits:
+    memory: 128M
+  requests:
+    cpu: 25m
+    memory: 128M
+serviceAccount:
+  create: true

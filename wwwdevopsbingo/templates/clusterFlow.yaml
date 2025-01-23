@@ -1,0 +1,16 @@
+{{- if eq .Values.logs.enabled true }}
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: ClusterFlow
+metadata:
+  name: {{ include "sample-service.fullname" $}}-cluster-flow
+  namespace: {{ .Values.logs.namespace }}
+  labels:
+    {{- include "sample-service.labels" . | nindent 4 }}
+spec:
+  globalOutputRefs:
+    {{- toYaml .Values.logs.globalOutputRefs | nindent 4 }}
+  match:
+    - select:
+        labels:
+          {{- include "sample-service.selectorLabels" . | nindent 10 }}
+{{- end }}

@@ -1,0 +1,12 @@
+version: v1.0.0
+
+containers:
+  sample-service:
+    image:
+      constraints:
+        containerRegistries:
+        - ghcr.io
+        imageRepositories:
+        - kapstan-io/gandalf
+    environmentVariables: true
+    secrets: true
