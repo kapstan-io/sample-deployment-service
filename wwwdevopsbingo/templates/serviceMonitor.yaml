@@ -1,0 +1,24 @@
+{{- if eq .Values.metrics.enabled true }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "sample-service.fullname" $}}-service-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sample-service.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+    {{- include "sample-service.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: {{ .Values.metrics.port }}
+      path: {{ .Values.metrics.path }}
+      {{- if .Values.metrics.tls.enabled }}
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
+        caFile: {{ default "/etc/prometheus/secrets/tls/ca.crt" .Values.metrics.tls.caFile }}
+        certFile: {{ default "/etc/prometheus/secrets/tls/tls.crt" .Values.metrics.tls.certFile }}
+        keyFile: {{ default "/etc/prometheus/secrets/tls/tls.key" .Values.metrics.tls.keyFile }}
+      {{- end }}
+{{- end }}

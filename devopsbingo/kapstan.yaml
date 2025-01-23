@@ -1,0 +1,21 @@
+version: v1.0.0
+
+resources:
+  constraints:
+    maxCpu: 16
+    maxMemory: "12GB"
+
+autoscaling:
+  constraints:
+    minPods: 1
+
+containers:
+  sample-service:
+    image:
+      constraints:
+        containerRegistries:
+        - ghcr.io
+        imageRepositories:
+        - kapstan-io/gandalf
+    environmentVariables: true
+    secrets: true
