@@ -3,7 +3,9 @@ version: v1.0.0
 resources:
   constraints:
     maxCpu: 16
-    maxMemory: "12GB"
+    maxMemory: "12G"
+    minCpu: "100m"
+    minMemory: "128M"
 
 autoscaling:
   constraints:
